@@ -83,9 +83,9 @@ for epoch in six.moves.range(1, n_epoch + 1):
         optimizer.update()
 
         if epoch == 1 and i == 0:
-            with open("graph.dot", "w") as o:
+            with open("../result/graph.dot", "w") as o:
                 o.write(c.build_computational_graph((loss, )).dump())
-            with open("graph.wo_split.dot", "w") as o:
+            with open("../result/graph.wo_split.dot", "w") as o:
                 g = c.build_computational_graph((loss, ),
                                                 remove_split=True)
                 o.write(g.dump())
