@@ -1,3 +1,8 @@
+# coding: utf-8
+
+# https://github.com/KDA-lab/NN-Chainer/blob/master/multilayerNN.py
+# 少し改変
+
 import numpy as np
 from chainer import Function, FunctionSet, gradient_check, Variable, optimizers, utils
 import chainer.functions as F
@@ -6,12 +11,13 @@ x = np.array([[0, 0], [0, 1], [1, 0], [1, 1]], dtype=np.float32)
 y = np.array([[0], [1], [1], [0]], dtype=np.float32)
 datasize = len(x)
 hsize = 2
+TIME = 10000
 
 model = FunctionSet(
     x_to_h = F.Linear(2, hsize),
     h_to_y = F.Linear(hsize, 1),
 )
-optimizer = optimizers.Adam()
+optimizer = optimizers.SGD(lr=0.1)
 optimizer.setup(model)
 
 def forward(x_data, y_data):
@@ -22,7 +28,7 @@ def forward(x_data, y_data):
     return y, F.mean_squared_error(y, t)
 
 batchsize = 2
-for epoch in range(20000):
+for epoch in range(TIME):
     indexes = np.random.permutation(datasize)
     sum = np.zeros(())
     for i in range(0, datasize, batchsize):
@@ -33,7 +39,8 @@ for epoch in range(20000):
         sum += loss.data.reshape(())
         loss.backward()
         optimizer.update()
-    if ((epoch+1) % 1000) == 0: print 'Epoch %d: Error = %f' % (epoch+1, sum/datasize)
+    if ((epoch) % 1000) == 0:
+        print('Epoch %d: Error = %f' % (epoch, sum/batchsize))
 
 output, loss = forward(x, y)
 print output.data

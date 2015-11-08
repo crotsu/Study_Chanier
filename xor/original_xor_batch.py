@@ -58,7 +58,7 @@ for t in range(TIME):
     offset1 -= offset1batch
     offset2 -= offset2batch
 
-    if (t+1)%1000==0:
-        print('time=%d: error=%f' % (t+1, error/4))
+    if t%1000==0:
+        print('time=%d: error=%f' % (t, error/4))
 
 print(out)

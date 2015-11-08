@@ -41,6 +41,7 @@ for epoch in range(TIME):
   loss.backward()
   optimizer.update()
 
-  if ((epoch+1) % 1000) == 0: print 'Epoch %d: Error = %f' % (epoch+1, sum/datasize)
+  if ((epoch) % 1000) == 0:
+    print('Epoch %d: Error = %f' % (epoch, sum))
 
 print(out.data)
