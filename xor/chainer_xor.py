@@ -7,6 +7,7 @@ import chainer.functions as F
 from chainer import optimizers
 import numpy as np
 
+TIME = 1000
 middle_units = 2
 
 # ネットワークモデル
@@ -26,9 +27,11 @@ y_train = chainer.Variable(np.array([[0], [1], [1], [0]], dtype=np.float32))
 optimizer = optimizers.SGD()
 optimizer.setup(model)
 
-for i in range(100000):
+for i in range(TIME):
   optimizer.zero_grads()
   loss, out = forward(x_train, y_train)
 
   loss.backward()
   optimizer.update()
+
+print(out.data)

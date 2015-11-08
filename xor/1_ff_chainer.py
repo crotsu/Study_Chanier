@@ -1,14 +1,13 @@
 # coding: UTF-8
 
-# Chainerを使ってXORを学習する
+# chainerで前向き計算を行う
 
 import chainer
 import chainer.functions as F
-from chainer import optimizers
 import numpy as np
 
 # 乱数を固定にする
-np.random.seed(0)
+chainer.function.numpy.random.seed(0)
 
 middle_units = 2
 
@@ -17,7 +16,6 @@ model = chainer.FunctionSet(l1=F.Linear(2, middle_units),
                             l2=F.Linear(middle_units, 1))
 
 x_train = chainer.Variable(np.array([[0,0], [0,1], [1,0], [1,1]], dtype=np.float32))
-y_train = chainer.Variable(np.array([[0], [1], [1], [0]], dtype=np.float32))
 
 # 前向きの計算が合っているのか確認する．
 
@@ -59,5 +57,6 @@ print('X2')
 print(X2.data)
 
 out2 = F.sigmoid(X2)
-print('out2')
+print()
+print('out2.data')
 print(out2.data)
