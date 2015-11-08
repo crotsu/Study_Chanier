@@ -31,6 +31,12 @@ offset2 = (np.random.rand(1)-0.5)*2
 for t in range(TIME):
     error = 0
     out = []
+
+    weight1batch = np.zeros((2,2))
+    weight2batch = np.zeros((1,2))
+    offset1batch = np.zeros(2)
+    offset2batch = np.zeros(1)
+
     for p in range(len(inputs)):
         # 前向き計算
         out1 = sigmoid(np.dot(weight1,inputs[p])+offset1)
@@ -40,16 +46,19 @@ for t in range(TIME):
 
         # BP
         delta2 = (out2-teach[p])*EPSILON*out2*(1.0-out2)
-        weight2 -= ETA*delta2*out1
-        offset2 -= ETA*delta2
+        weight2batch += ETA*delta2*out1
+        offset2batch += ETA*delta2
 
         delta1 = EPSILON*out1*(1.0-out1)*delta2*weight2
-        weight1 -= ETA*delta1*inputs[p]
-        offset1 -= ETA*delta1[0]
+        weight1batch += ETA*delta1*inputs[p]
+        offset1batch += ETA*delta1[0]
+
+    weight1 -= weight1batch
+    weight2 -= weight2batch
+    offset1 -= offset1batch
+    offset2 -= offset2batch
 
     if (t+1)%1000==0:
         print('time=%d: error=%f' % (t+1, error/4))
 
 print(out)
-
-
