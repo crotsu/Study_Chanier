@@ -7,7 +7,6 @@ import chainer.functions as F
 from chainer import optimizers
 import numpy as np
 
-n_epoch = 2
 middle_units = 2
 
 # ネットワークモデル
