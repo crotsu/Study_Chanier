@@ -7,8 +7,6 @@ ETA = 0.1
 def sigmoid(x):
     return 1/(1+np.exp(-x))
 
-np.random.seed(0)
-
 inputs = np.array([[0,0],
          [0,1],
          [1,0],

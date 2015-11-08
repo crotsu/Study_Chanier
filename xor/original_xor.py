@@ -1,16 +1,19 @@
+# coding: UTF-8
+
 # ニューラルネットワーク
 # 一番簡単なBP
 # XOR
 
 import numpy as np
 
-EPSILON = 4.0
+EPSILON = 1.0
 ETA = 0.1
+TIME = 10000
 
 def sigmoid(x):
     return 1/(1+np.exp(-EPSILON*x))
 
-np.random.seed(2)
+#np.random.seed(2)
 
 inputs = [[0,0],
          [0,1],
@@ -23,7 +26,7 @@ weight2 = (np.random.rand(1, 2)-0.5)*2
 offset1 = (np.random.rand(2)-0.5)*2
 offset2 = (np.random.rand(1)-0.5)*2
 
-for t in range(1000):
+for t in range(TIME):
     error = 0
     out = []
     for p in range(len(inputs)):
@@ -43,5 +46,3 @@ for t in range(1000):
         offset1 -= ETA*delta1[0]
     print(error)
 
-print('output')
-print(out)
