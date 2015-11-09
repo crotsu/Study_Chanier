@@ -29,7 +29,7 @@ N_test = y_test.size
 
 # パラメータ
 batchsize = 100
-n_epoch = 20
+n_epoch = 1000
 
 # モデルを作る
 model = chainer.FunctionSet(l1=F.Linear(784, 256),
@@ -41,7 +41,7 @@ model = chainer.FunctionSet(l1=F.Linear(784, 256),
 def forward(x_batch, y_batch, train=True):
   x, t = chainer.Variable(x_batch), chainer.Variable(y_batch)
   h1 = F.dropout(F.relu(model.l1(x)),  train=train)
-  h2 = F.dropout(F.sigmoid(model.l2(h1)), train=train)
+  h2 = F.dropout(F.liner(model.l2(h1)), train=train)
   h3 = F.dropout(F.relu(model.l3(h2)), train=train)
   y = F.dropout(F.relu(model.l4(h3)), train=train)
 
