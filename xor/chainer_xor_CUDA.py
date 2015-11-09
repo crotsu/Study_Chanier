@@ -4,6 +4,7 @@
 # CUDA版
 
 import chainer
+from chainer import cuda
 import chainer.functions as F
 from chainer import optimizers
 import numpy as np
@@ -22,7 +23,8 @@ model = chainer.FunctionSet(l1=F.Linear(2, middle_units),
                             l2=F.Linear(middle_units, 1))
 
 # cuda
-cuda.get_device(args.gpu).use()
+gpu_device = 0
+cuda.get_device(gpu_device).use()
 model.to_gpu()
 
 def forward(x_data, y_data):
@@ -51,8 +53,8 @@ for epoch in range(TIME):
   y_batch = xp.asarray(y_train)
 
   loss, out = forward(x_batch, y_batch)
-  sum += loss.data.reshape(())
-
+#  sum += loss.data.reshape(())
+  sum += loss.data
   loss.backward()
   optimizer.update()
 
