@@ -6,6 +6,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import six
+import six.moves.cPickle as pickle
 
 import chainer
 from chainer import computational_graph as c
@@ -51,9 +52,17 @@ n_epoch = 10
 
 # モデルを作る
 model = chainer.FunctionSet(l1=F.Linear(784, 1000),
-                            l2=F.Linear(1000, 1000),
-                            l3=F.Linear(1000, 1000),
-                            l4=F.Linear(1000, 784))
+                            l2=F.Linear(1000, 500),
+                            l3=F.Linear(500, 100),
+                            l4=F.Linear(100, 50),
+                            l5=F.Linear(50, 10),
+                            l6=F.Linear(10, 2),
+                            l7=F.Linear(2, 10),
+                            l8=F.Linear(10, 50),
+                            l9=F.Linear(50, 100),
+                            l10=F.Linear(100, 500),
+                            l11=F.Linear(500, 1000),
+                            l12=F.Linear(1000, 784))
 
 # 前向き計算
 def forward(x_batch, y_batch, train=True):
@@ -61,7 +70,15 @@ def forward(x_batch, y_batch, train=True):
   h1 = F.dropout(F.relu(model.l1(x)),  train=train)
   h2 = F.dropout(F.relu(model.l2(h1)), train=train)
   h3 = F.dropout(F.relu(model.l3(h2)), train=train)
-  y = F.dropout(F.relu(model.l4(h3)), train=train)
+  h4 = F.dropout(F.relu(model.l4(h3)), train=train)
+  h5 = F.dropout(F.relu(model.l5(h4)), train=train)
+  h6 = F.dropout(F.relu(model.l6(h5)), train=train)
+  h7 = F.dropout(F.relu(model.l7(h6)), train=train)
+  h8 = F.dropout(F.relu(model.l8(h7)), train=train)
+  h9 = F.dropout(F.relu(model.l9(h8)), train=train)
+  h10 = F.dropout(F.relu(model.l10(h9)), train=train)
+  h11 = F.dropout(F.relu(model.l11(h10)), train=train)
+  y = F.dropout(F.relu(model.l12(h11)), train=train)
 
   return F.mean_squared_error(y, t), y
 
@@ -97,4 +114,14 @@ for epoch in six.moves.range(1, n_epoch + 1):
 
         sum_loss += float(loss.data) * len(x_batch)
 
-    print('train mean loss={}'.format(sum_loss / N))
+    print('train mean loss={}'.format(sum_loss / N_test))
+
+# モデルを保存
+pickle.dump(model, open('model', 'wb'), -1)
+
+'''
+
+('epoch', 10)
+train mean loss=0.0689758027904
+train mean loss=0.00736174394687
+'''
