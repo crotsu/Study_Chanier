@@ -24,15 +24,24 @@ def draw_digit(data):
 with open('mnist.pkl', 'rb') as mnist_pickle:
   mnist = six.moves.cPickle.load(mnist_pickle)
 
+# mnistは辞書型．
+# キーは'data','target'
+# > type(mnist)
+# > mnist.keys()
+# で調べられる
+
+# 画素値を[0.0, 1.0]に正規化する
 mnist['data'] = mnist['data'].astype(np.float32)
 mnist['data'] /= 255
 mnist['target'] = mnist['target'].astype(np.int32)
 
+# mnist.pklはトレーニングデータ60000枚，テストデータ10000枚の70000枚となっている．
+# それをトレーニングデータとテストデータに分ける
 N = 60000
 x_train, x_test = np.split(mnist['data'],   [N])
 y_train, y_test = np.split(mnist['target'], [N])
 N_test = y_test.size
 
-# 表示して確認する
+# 表示して確認する 数字は3
 #draw_digit(x_train[12345])
 #print(y_train[12345])
