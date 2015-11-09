@@ -3,6 +3,7 @@
 # 自分でmnistを学習するDNNをchainerで作る
 # CUDAなしバージョン
 
+import matplotlib.pyplot as plt
 import numpy as np
 import six
 
@@ -11,6 +12,23 @@ from chainer import computational_graph as c
 from chainer import cuda
 import chainer.functions as F
 from chainer import optimizers
+
+# mnistの画像を表示する
+def draw_digit(data):
+    size = 28
+    plt.figure(figsize=(2.5, 3))
+
+    X, Y = np.meshgrid(range(size),range(size))
+    Z = data.reshape(size,size)   # convert from vector to 28x28 matrix
+    Z = Z[::-1,:]             # flip vertical
+    plt.xlim(0,27)
+    plt.ylim(0,27)
+    plt.pcolor(X, Y, Z)
+    plt.gray()
+    plt.tick_params(labelbottom="off")
+    plt.tick_params(labelleft="off")
+
+    plt.show()
 
 # すでにmnist.pklになっているデータを読み込む
 with open('mnist.pkl', 'rb') as mnist_pickle:
@@ -29,13 +47,13 @@ N_test = y_test.size
 
 # パラメータ
 batchsize = 100
-n_epoch = 1000
+n_epoch = 10
 
 # モデルを作る
-model = chainer.FunctionSet(l1=F.Linear(784, 256),
-                            l2=F.Linear(256, 2),
-                            l3=F.Linear(2, 256),
-                            l4=F.Linear(256, 784))
+model = chainer.FunctionSet(l1=F.Linear(784, 1000),
+                            l2=F.Linear(1000, 1000),
+                            l3=F.Linear(1000, 1000),
+                            l4=F.Linear(1000, 784))
 
 # 前向き計算
 def forward(x_batch, y_batch, train=True):
@@ -45,7 +63,7 @@ def forward(x_batch, y_batch, train=True):
   h3 = F.dropout(F.relu(model.l3(h2)), train=train)
   y = F.dropout(F.relu(model.l4(h3)), train=train)
 
-  return F.mean_squared_error(y, t)
+  return F.mean_squared_error(y, t), y
 
 # 最適化を設定
 optimizer = optimizers.Adam()
@@ -62,10 +80,21 @@ for epoch in six.moves.range(1, n_epoch + 1):
       x_batch = np.asarray(x_train[perm[i:i + batchsize]])
 
       optimizer.zero_grads()
-      loss = forward(x_batch, x_batch)
+      loss, out = forward(x_batch, x_batch)
       loss.backward()
       optimizer.update()
 
       sum_loss += float(loss.data) * len(x_batch)
+
+    print('train mean loss={}'.format(sum_loss / N))
+
+    # evaluation
+    sum_loss = 0
+    for i in six.moves.range(0, N_test, batchsize):
+        x_batch = np.asarray(x_test[i:i + batchsize])
+
+        loss, out = forward(x_batch, x_batch, train=False)
+
+        sum_loss += float(loss.data) * len(x_batch)
 
     print('train mean loss={}'.format(sum_loss / N))
