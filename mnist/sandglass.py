@@ -3,6 +3,8 @@
 # 自分でmnistを学習するDNNをchainerで作る
 # CUDAなしバージョン
 
+import argparse
+
 import matplotlib.pyplot as plt
 import numpy as np
 import six
@@ -30,6 +32,17 @@ def draw_digit(data):
     plt.tick_params(labelleft="off")
 
     plt.show()
+
+
+# main
+parser = argparse.ArgumentParser(description='Chainer example: MNIST')
+parser.add_argument('--gpu', '-g', default=-1, type=int,
+                    help='GPU ID (negative value indicates CPU)')
+args = parser.parse_args()
+if args.gpu >= 0:
+    cuda.check_cuda_available()
+xp = cuda.cupy if args.gpu >= 0 else np
+
 
 # すでにmnist.pklになっているデータを読み込む
 with open('mnist.pkl', 'rb') as mnist_pickle:
@@ -64,6 +77,10 @@ model = chainer.FunctionSet(l1=F.Linear(784, 1000),
                             l11=F.Linear(500, 1000),
                             l12=F.Linear(1000, 784))
 
+if args.gpu >= 0:
+    cuda.get_device(args.gpu).use()
+    model.to_gpu()
+
 # 前向き計算
 def forward(x_batch, y_batch, train=True):
   x, t = chainer.Variable(x_batch), chainer.Variable(y_batch)
@@ -94,7 +111,7 @@ for epoch in six.moves.range(1, n_epoch + 1):
     perm = np.random.permutation(N)
     sum_loss = 0
     for i in six.moves.range(0, N, batchsize):
-      x_batch = np.asarray(x_train[perm[i:i + batchsize]])
+      x_batch = xp.asarray(x_train[perm[i:i + batchsize]])
 
       optimizer.zero_grads()
       loss, out = forward(x_batch, x_batch)
@@ -108,7 +125,7 @@ for epoch in six.moves.range(1, n_epoch + 1):
     # evaluation
     sum_loss = 0
     for i in six.moves.range(0, N_test, batchsize):
-        x_batch = np.asarray(x_test[i:i + batchsize])
+        x_batch = xp.asarray(x_test[i:i + batchsize])
 
         loss, out = forward(x_batch, x_batch, train=False)
 
