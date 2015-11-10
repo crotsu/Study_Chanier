@@ -1,6 +1,7 @@
-chainer-1.4.0
-data
-result
+chainer-1.4.0/
+data/
+result/
 mnist/mnist.pkl
 mnist/data.pyc
 __pycache__/
+model
