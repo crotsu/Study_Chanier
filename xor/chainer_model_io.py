@@ -1,6 +1,10 @@
 # coding: UTF-8
 
 # Chainerを使ってXORを学習する
+# 重みをエクスポート，インポート
+
+import argparse
+import six.moves.cPickle as pickle
 
 import chainer
 import chainer.functions as F
@@ -9,12 +13,19 @@ import numpy as np
 
 np.random.seed(0)
 
-TIME = 3000
+TIME = 2000
 middle_units = 2
 
 # ネットワークモデル
-model = chainer.FunctionSet(l1=F.Linear(2, middle_units),
-                            l2=F.Linear(middle_units, 1))
+parser = argparse.ArgumentParser(description='Chainer example: XOR')
+parser.add_argument('--model', '-m', default=0, help ='Trained Model')
+args = parser.parse_args()
+
+if args.model != 0:
+  model = pickle.load(open(args.model, 'rb'))
+else:
+  model = chainer.FunctionSet(l1=F.Linear(2, middle_units),
+                              l2=F.Linear(middle_units, 1))
 
 def forward(x_data, y_data):
   x = chainer.Variable(x_data)
@@ -45,3 +56,7 @@ for epoch in range(TIME):
     print('Epoch %d: Error = %f' % (epoch, sum))
 
 print(out.data)
+
+# モデルを保存
+if args.model == 0:
+  pickle.dump(model, open('model', 'wb'), -1)
