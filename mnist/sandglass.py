@@ -34,10 +34,24 @@ def draw_digit(data):
 
 
 # main
-parser = argparse.ArgumentParser(description='Chainer example: MNIST')
+parser = argparse.ArgumentParser(description='Sandglass: MNIST')
 parser.add_argument('--gpu', '-g', default=-1, type=int,
                     help='GPU ID (negative value indicates CPU)')
+parser.add_argument('--model', '-m', default=0, help ='Trained Model')
 args = parser.parse_args()
+
+
+if args.model != 0:
+  model = pickle.load(open(args.model, 'rb'))
+else:
+    # モデルを作る
+    model = chainer.FunctionSet(l1=F.Linear(784, 1000),
+                                l2=F.Linear(1000, 500),
+                                l3=F.Linear(500, 100),
+                                l4=F.Linear(100, 500),
+                                l5=F.Linear(500, 1000),
+                                l6=F.Linear(1000, 784))
+
 if args.gpu >= 0:
     cuda.check_cuda_available()
 xp = cuda.cupy if args.gpu >= 0 else np
@@ -59,15 +73,7 @@ N_test = y_test.size
 
 # パラメータ
 batchsize = 100
-n_epoch = 10
-
-# モデルを作る
-model = chainer.FunctionSet(l1=F.Linear(784, 1000),
-                            l2=F.Linear(1000, 500),
-                            l3=F.Linear(500, 100),
-                            l4=F.Linear(100, 500),
-                            l5=F.Linear(500, 1000),
-                            l6=F.Linear(1000, 784))
+n_epoch = 2
 
 if args.gpu >= 0:
     cuda.get_device(args.gpu).use()
@@ -90,6 +96,9 @@ optimizer = optimizers.Adam()
 optimizer.setup(model)
 
 # Learning loop
+f_train = open('error_train.csv', 'w')
+f_test = open('error_test.csv', 'w')
+
 for epoch in six.moves.range(1, n_epoch + 1):
     print('epoch', epoch)
 
@@ -106,7 +115,8 @@ for epoch in six.moves.range(1, n_epoch + 1):
 
       sum_loss += float(loss.data) * len(x_batch)
 
-    print('train mean loss={}'.format(sum_loss / N))
+    print('train mean loss={}'.format(sum_loss/N))
+    f_train.write(str(sum_loss/N) + '\n')
 
     # evaluation
     sum_loss = 0
@@ -117,14 +127,12 @@ for epoch in six.moves.range(1, n_epoch + 1):
 
         sum_loss += float(loss.data) * len(x_batch)
 
-    print('train mean loss={}'.format(sum_loss / N_test))
+    print('train mean loss={}'.format(sum_loss/N_test))
+    f_test.write(str(sum_loss/N_test) + '\n')
 
 # モデルを保存
-pickle.dump(model, open('model', 'wb'), -1)
+if args.model == 0:
+  pickle.dump(model, open('model', 'wb'), -1)
 
-'''
-
-('epoch', 10)
-train mean loss=0.0689758027904
-train mean loss=0.00736174394687
-'''
+f_train.close()
+f_test.close()
